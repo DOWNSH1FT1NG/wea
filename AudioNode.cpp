@@ -20,12 +20,20 @@ AudioNode::AudioNode(int numChannels, int bufferSize)
 }
 
 void AudioNode::setInputBuffer(const juce::AudioBuffer<float>& in) {
+    if (inputBuffer.getNumChannels() != in.getNumChannels() ||
+        inputBuffer.getNumSamples() != in.getNumSamples()) {
+        inputBuffer.setSize(in.getNumChannels(), in.getNumSamples(), false, false, true);
+        outputBuffer.setSize(in.getNumChannels(), in.getNumSamples(), false, false, true);
+    }
     inputBuffer.makeCopyOf(in);
 }
 
 void AudioNode::process() {
-    outputBuffer.makeCopyOf(inputBuffer); // пока просто копирует вход в выход
+    for (int channel = 0; channel < inputBuffer.getNumChannels(); ++channel) {
+        outputBuffer.copyFrom(channel, 0, inputBuffer, channel, 0, inputBuffer.getNumSamples());
+    }
 }
+
 
 const juce::AudioBuffer<float>& AudioNode::getOutputBuffer() const {
     return outputBuffer;
