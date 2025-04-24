@@ -16,11 +16,15 @@
 Graph::Graph() {}
 
 void Graph::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi) {
+    if (buffer.getNumChannels() == 0 || buffer.getNumSamples() == 0)
+        return;
+
     node.setInputBuffer(buffer);
     node.process();
-    const auto& output = node.getOutputBuffer();
 
+    const auto& output = node.getOutputBuffer();
     for (int ch = 0; ch < output.getNumChannels(); ++ch)
         buffer.copyFrom(ch, 0, output, ch, 0, output.getNumSamples());
 }
+
 
