@@ -15,10 +15,11 @@
 
 class AudioNode {
 public:
-    AudioNode(int numChannels, int bufferSize);
+    AudioNode();
     void setInputBuffer(const juce::AudioBuffer<float>& in);
     void process();
     const juce::AudioBuffer<float>& getOutputBuffer() const;
+    void resizeIfNeeded(int numChannels, int numSamples);
 
 private:
     juce::AudioBuffer<float> inputBuffer;

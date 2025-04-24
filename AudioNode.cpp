@@ -11,29 +11,27 @@
 
 #include "AudioNode.h"
 
-AudioNode::AudioNode(int numChannels, int bufferSize)
-    : inputBuffer(numChannels, bufferSize),
-    outputBuffer(numChannels, bufferSize)
-{
-    inputBuffer.clear();
-    outputBuffer.clear();
+AudioNode::AudioNode() {}
+
+void AudioNode::resizeIfNeeded(int numChannels, int numSamples) {
+    if (inputBuffer.getNumChannels() != numChannels ||
+        inputBuffer.getNumSamples() != numSamples) {
+        inputBuffer.setSize(numChannels, numSamples, false, false, true);
+        outputBuffer.setSize(numChannels, numSamples, false, false, true);
+    }
 }
 
 void AudioNode::setInputBuffer(const juce::AudioBuffer<float>& in) {
-    if (inputBuffer.getNumChannels() != in.getNumChannels() ||
-        inputBuffer.getNumSamples() != in.getNumSamples()) {
-        inputBuffer.setSize(in.getNumChannels(), in.getNumSamples(), false, false, true);
-        outputBuffer.setSize(in.getNumChannels(), in.getNumSamples(), false, false, true);
-    }
-    inputBuffer.makeCopyOf(in);
+    resizeIfNeeded(in.getNumChannels(), in.getNumSamples());
+    for (int ch = 0; ch < in.getNumChannels(); ++ch)
+        inputBuffer.copyFrom(ch, 0, in, ch, 0, in.getNumSamples());
 }
 
 void AudioNode::process() {
-    for (int channel = 0; channel < inputBuffer.getNumChannels(); ++channel) {
-        outputBuffer.copyFrom(channel, 0, inputBuffer, channel, 0, inputBuffer.getNumSamples());
-    }
+    // Простой passthrough: input -> output
+    for (int ch = 0; ch < inputBuffer.getNumChannels(); ++ch)
+        outputBuffer.copyFrom(ch, 0, inputBuffer, ch, 0, inputBuffer.getNumSamples());
 }
-
 
 const juce::AudioBuffer<float>& AudioNode::getOutputBuffer() const {
     return outputBuffer;

@@ -15,10 +15,9 @@
 class Graph {
 public:
     Graph();
-    ~Graph() = default;
-
     void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi);
 
 private:
     AudioNode node;
 };
+

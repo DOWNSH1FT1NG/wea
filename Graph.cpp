@@ -12,14 +12,15 @@
 #include "AudioNode.h"
 #include <JuceHeader.h>
 
-Graph::Graph()
-    : node(2, 512) // или любые стартовые значения
-{}
 
+Graph::Graph() {}
 
 void Graph::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midi) {
-    static AudioNode node(buffer.getNumChannels(), buffer.getNumSamples());
     node.setInputBuffer(buffer);
     node.process();
-    buffer.makeCopyOf(node.getOutputBuffer());
+    const auto& output = node.getOutputBuffer();
+
+    for (int ch = 0; ch < output.getNumChannels(); ++ch)
+        buffer.copyFrom(ch, 0, output, ch, 0, output.getNumSamples());
 }
+
